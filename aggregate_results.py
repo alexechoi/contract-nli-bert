@@ -40,20 +40,24 @@ def parse_args():
 def aggregate_path(path):
     results = []
     for out_dir in glob.glob(os.path.join(path, "conf_*")):
-        with open(os.path.join(out_dir, 'metrics.json')) as fin:
-            dev_result = json.load(fin)
-        with open(os.path.join(out_dir, 'test_metrics.json')) as fin:
-            test_result = json.load(fin)
-
-        conf = load_conf(os.path.join(out_dir, 'conf.yml'))
-        del conf['raw_yaml']
-        results.append({
-            'test': test_result,
-            'dev': dev_result,
-            'conf': conf,
-            'path': out_dir
-        })
+        metrics_path = os.path.join(out_dir, 'metrics.json')
+        test_metrics_path = os.path.join(out_dir, 'test_metrics.json')
+        if os.path.isfile(metrics_path) and os.path.isfile(test_metrics_path):
+            with open(metrics_path) as fin:
+                dev_result = json.load(fin)
+            with open(test_metrics_path) as fin:
+                test_result = json.load(fin)
+            conf = load_conf(os.path.join(out_dir, 'conf.yml'))
+            del conf['raw_yaml']
+            results.append({
+                'test': test_result,
+                'dev': dev_result,
+                'conf': conf,
+                'path': out_dir
+            })
     return results
+
+
 
 
 def aggregate_metrics(results: List[dict]) -> dict:
